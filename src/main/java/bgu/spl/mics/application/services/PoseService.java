@@ -2,13 +2,13 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
-import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * PoseService is responsible for maintaining the robot's current pose (position and orientation)
@@ -18,6 +18,7 @@ public class PoseService extends MicroService {
 
     private final GPSIMU gpsimu;
     private static final List<Pose> poses = new ArrayList<>();
+    private final CountDownLatch latch;
 
     public static List<Pose> getPoses() {
         return poses;
@@ -27,10 +28,12 @@ public class PoseService extends MicroService {
      * Constructor for PoseService.
      *
      * @param gpsimu The GPSIMU object that provides the robot's pose data.
+     * @param latch
      */
-    public PoseService(GPSIMU gpsimu) {
+    public PoseService(GPSIMU gpsimu, CountDownLatch latch) {
         super("The PoseService");
         this.gpsimu = gpsimu;
+        this.latch = latch;
     }
 
     /**
@@ -56,5 +59,6 @@ public class PoseService extends MicroService {
             gpsimu.setStatus(STATUS.ERROR);
             this.terminate();
         });
+        latch.countDown();
     }
 }

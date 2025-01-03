@@ -4,8 +4,8 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * FusionSlamService integrates data from multiple sensors to build and update
@@ -17,14 +17,17 @@ import java.util.List;
 public class FusionSlamService extends MicroService {
 
     private final FusionSlam fusionSlam;
+    private final CountDownLatch latch;
     /**
      * Constructor for FusionSlamService.
      *
      * @param fusionSlam The FusionSLAM object responsible for managing the global map.
+     * @param latch
      */
-    public FusionSlamService(FusionSlam fusionSlam) {
+    public FusionSlamService(FusionSlam fusionSlam, CountDownLatch latch) {
         super("FusionSlam service");
         this.fusionSlam = fusionSlam.getInstance();
+        this.latch = latch;
     }
 
     /**
@@ -70,5 +73,6 @@ public class FusionSlamService extends MicroService {
             JsonFileWriter.writeObjectToJsonFile(new Output(),Config.getOutputFilePath());
             terminate();
         });
+        latch.countDown();
     }
 }

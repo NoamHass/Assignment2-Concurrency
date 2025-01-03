@@ -71,11 +71,7 @@ public class MessageBusImpl implements MessageBus {
 		if (subscribers != null) {
 			synchronized (subscribers) {
 				for (MicroService m : subscribers) {
-					try {
-						queues.get(m).put(b);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
+						queues.get(m).offer(b);
 				}
 			}
 		}
@@ -91,11 +87,7 @@ public class MessageBusImpl implements MessageBus {
 		MicroService TempMS = subscriptions.remove(0);
 		System.out.println("microservice " + TempMS + " was selected for event " + e);
 		subscriptions.add(TempMS);
-		try {
-			queues.get(TempMS).put(e);
-		} catch (InterruptedException err) {
-			Thread.currentThread().interrupt();
-		}
+		queues.get(TempMS).offer(e);
 		Future<T> future = new Future<>();
 		futures.put(e, future);
 		return future;

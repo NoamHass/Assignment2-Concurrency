@@ -17,7 +17,8 @@ public class PoseEvent implements Event<Boolean> {
 
     public PoseEvent(Pose pose) {
         this.pose = pose;
-        System.out.println("Robot Position:" + pose.toString());
+        if(pose != null)
+            System.out.println("Robot Position:" + pose.toString());
     }
 
     public Pose getPose () {

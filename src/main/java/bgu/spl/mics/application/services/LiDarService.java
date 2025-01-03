@@ -4,8 +4,8 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -18,14 +18,17 @@ import java.util.List;
 public class LiDarService extends MicroService {
 
     private final LiDarWorkerTracker MyLiDar;
+    private final CountDownLatch latch;
     /**
      * Constructor for LiDarService.
      *
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
+     * @param latch
      */
-    public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
+    public LiDarService(LiDarWorkerTracker LiDarWorkerTracker, CountDownLatch latch) {
         super("LiDarService " + LiDarWorkerTracker.getId());
         this.MyLiDar = LiDarWorkerTracker;
+        this.latch = latch;
     }
 
     /**
@@ -117,5 +120,6 @@ public class LiDarService extends MicroService {
             sendBroadcast(new SensorTerminationBroadcast(this));
             terminate();
         });
+        latch.countDown();
     }
 }

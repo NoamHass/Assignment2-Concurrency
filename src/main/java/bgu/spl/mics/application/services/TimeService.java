@@ -39,15 +39,13 @@ public class TimeService extends MicroService {
         // we want a different thread to run this method for not blocking the event loop
         //of this microservice when we sleep for tick time.
 
-        Thread TickThread = new Thread(() -> {
-
             try {
                 while (Duration > CurrentTick) {
                     CurrentTick ++;
                     StatisticalFolder.getInstance().incrementSystemRuntine(1);
                     Broadcast TickBroadcast = new TickBroadcast(CurrentTick);
                     sendBroadcast(TickBroadcast);
-                    Thread.sleep(TickTime);
+                    Thread.sleep(TickTime * 1000);
                 }
                 // making all other sensors to stop when tick = duration
                 sendBroadcast(new TerminatedBroadcast());
@@ -58,8 +56,6 @@ public class TimeService extends MicroService {
                 Thread.currentThread().interrupt();
 
             }
-        } );
-        TickThread.start();
+    } ;
 
-    }
 }

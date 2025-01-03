@@ -4,7 +4,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.*;
 
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * CameraService is responsible for processing data from the camera and
@@ -15,16 +15,18 @@ import java.util.List;
  */
 public class CameraService extends MicroService {
     private final Camera Mycamera;
+    private final CountDownLatch latch;
 
     /**
-     *
      * Constructor for CameraService.
      *
      * @param camera The Camera object that this service will use to detect objects.
+     * @param latch
      */
-    public CameraService(Camera camera) {
+    public CameraService(Camera camera, CountDownLatch latch) {
         super("camera service" + camera.getId());
         this.Mycamera = camera;
+        this.latch = latch;
 
     }
 
@@ -43,7 +45,7 @@ public class CameraService extends MicroService {
             int currTick = tickBroadcast.getTick();
             // checking fo an error at this current tick
             StampedDetectedObjects currentTickObjects = Mycamera.getObjectAtTick(currTick);
-            if(currentTickObjects != null){
+            if(currentTickObjects != null ){
                 System.out.println("camera" + Mycamera.getId() + " Detected objects in current tick: " +  currentTickObjects);
                 // checking for error
                 for (DetectedObject DO : currentTickObjects.getDetectedObjects()) {
@@ -92,5 +94,6 @@ public class CameraService extends MicroService {
             Mycamera.setStatus(STATUS.ERROR);
             this.terminate();
         });
+        latch.countDown();
     }
 }
